@@ -4,7 +4,12 @@
 
 #pragma once
 
-
+struct ListData
+{
+	wchar_t name[24];
+	wchar_t phone[24];
+	int age;
+};
 // CListBoxExtensionDlg 대화 상자
 class CListBoxExtensionDlg : public CDialogEx
 {
@@ -30,4 +35,9 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg void OnBnClickedAddBtn();
+	CListBox m_data_list;
+	afx_msg void OnLbnSelchangeDataList();
+	afx_msg void OnDestroy();
 };

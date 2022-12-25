@@ -26,11 +26,15 @@ CListBoxExtensionDlg::CListBoxExtensionDlg(CWnd* pParent /*=nullptr*/)
 void CListBoxExtensionDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_DATA_LIST, m_data_list);
 }
 
 BEGIN_MESSAGE_MAP(CListBoxExtensionDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_ADD_BTN, &CListBoxExtensionDlg::OnBnClickedAddBtn)
+	ON_LBN_SELCHANGE(IDC_DATA_LIST, &CListBoxExtensionDlg::OnLbnSelchangeDataList)
+	ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
 
@@ -86,3 +90,52 @@ HCURSOR CListBoxExtensionDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+void CListBoxExtensionDlg::OnBnClickedAddBtn()
+{
+	CString str, name_str, phone_str;
+	
+	GetDlgItemText(IDC_NAME_EDIT, name_str);
+	GetDlgItemText(IDC_PHONE_EDIT, phone_str);
+	int age = GetDlgItemInt(IDC_AGE_EDIT);
+
+	ListData* p = new ListData;
+	wcscpy_s(p->name, 24, name_str);
+	wcscpy_s(p->phone, 24, phone_str);
+	p->age = age;
+
+	str.Format(L"%s (%d / %s)", name_str, age, phone_str);
+	
+	int index = m_data_list.AddString(str);
+	m_data_list.SetItemDataPtr(index, p);
+	m_data_list.SetCurSel(index);
+}
+
+
+void CListBoxExtensionDlg::OnLbnSelchangeDataList()
+{
+	int index = m_data_list.GetCurSel();
+	if (LB_ERR != index) // index 가 -1이 안나온다면,
+	{
+		ListData* p = (ListData*)m_data_list.GetItemDataPtr(index);
+		
+		SetDlgItemText(IDC_NAME_EDIT, p->name);
+		SetDlgItemText(IDC_PHONE_EDIT, p->phone);
+		SetDlgItemInt(IDC_AGE_EDIT, p->age);
+	}
+}
+
+
+void CListBoxExtensionDlg::OnDestroy()
+{
+	CDialogEx::OnDestroy();
+
+	int count = m_data_list.GetCount();
+
+	ListData* p;
+	for (int i = 0; i < count; i++)
+	{
+		p = (ListData*)m_data_list.GetItemDataPtr(i);
+		delete p;
+	}
+	m_data_list.ResetContent();
+}
